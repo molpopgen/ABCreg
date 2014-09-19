@@ -42,7 +42,7 @@ paste prior_temp prior_summaries > prior
 
 #step 5: do the ABC step
 
-./reg -p prior -d data -P 1 -S 1 -b output -T -t 0.001
+../src/reg -p prior -d data -P 1 -S 1 -b output -T -t 0.001
 
 #step 6: plot the distribution of the estimator
 #This bit uses the locfit package in R to estimate the mode
