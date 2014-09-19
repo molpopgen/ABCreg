@@ -1,0 +1,81 @@
+\documentclass{article}
+\usepackage{fullpage}
+\usepackage{url}
+\title{ABCreg documentation}
+\author{Kevin Thornton}
+\date{April 14, 2008}
+\begin{document}
+\maketitle
+
+\section*{Introduction}
+This program implements the linear regression approach to ``Approximate Bayesian Computation'', or ABC that is described in \cite{beaumont02ABC}, with the tangent-tranformation of the data proposed by \cite{hamilton.abc.2005}.  The code is written in C++ and is intended to automate the procedure as much as possible.  It allows you to analyze a large number of data sets with one command.
+
+\section*{Terms and Conditions}
+This code is released under the terms of the GNU General Public License (\url{http://www.gnu.org/licenses/gpl.html}).
+
+\section*{Requirements}
+In order to compile this code, you need the following on your Unix (Linux, OS X, etc.) system:
+\begin{itemize}
+\item A C/C++ compiler
+\item The GNU Scientific Library (\url{http://www.gnu.org/software/gsl}).
+%\item The boost software library (\url{http://www.boost.org}).
+\end{itemize}
+
+\section*{Compilation}
+To compile:
+\begin{enumerate}
+\item \textit{tar xzf ABCreg.tar.gz}
+\item \textit{cd ABCreg}
+\item \textit{make}
+\end{enumerate}
+
+\subsection*{Debug mode}
+To compile in debug mode, type ``\textit{make debug}'' on your command line.  Debug mode will run a bit more slowly, but it will also exit if anything ``odd'' happens during the calculations.  Usually, the purpose of a debug mode is to help you out while modifying the code, and the normal compilation mode will be preferred for actual research.
+
+\section*{Usage}
+To use the program, you need to generate two files.  The first is the \textit{data file}, which contains the list of summary statistics for the data set of interest.  The summary statistics are to be present in one line per data set.  The program will analyze multiple data sets if there are multiple lines present in the \textit{data file}.
+
+The second file required is called the \textit{prior file}.  It contains a list of parameters which have been randomly-sampled from the prior distributions you have chosen, and the corresponding summary statistics.  \textit{\textbf{Note that the summary statistics must appear in the same order in both the prior file and the data file!}}.
+
+\subsection*{Command-line options}
+\texttt{ABCreg} accepts the following command-line options.  Values in brackets are to be supplied by the user:
+\begin{itemize}
+\item -p [\textit{prior file}]
+\item -d [\textit{data file}]
+\item -S [number of summary statistics]
+\item -P [number of parameters]
+\item -b [base name for output file]
+\item -t [tolerance]
+\item -T or -L
+\item -m [maxlines] 
+\end{itemize}
+
+All of the options except -m are required.  (You can used the program without -T or -L, but you'll likely get poor results.)  The -m option puts a maximum on the number of lines to be read in from \textit{prior file}, which can be useful if you find yourself with limited RAM available.
+
+The -T option implements the tangent transformation from \cite{hamilton.abc.2005}, and -L uses the standard natural-log transformation in the original \cite{beaumont02ABC} paper.  You can use one of these or the other, but not both.
+
+The -b option specifies the base name of the output file.  For example, if you issue the command (to obtain posterior distributions for all data sets described in ``datafile'' for a model with 2 parameters, 4 summary statistics, and where the closest 0.001 of the prior, in terms of Euclidian distance, are used to generate posterior distributions):
+
+\texttt{./reg -p priorfile -d datafile -P 2 -S 4 -b output -t 0.001 -T}
+
+When the program is done, you will see output files created with the names
+\begin{itemize}
+\item output.0.tangent.post
+\item output.1.tangent.post
+\item output.2.tangent.post
+\item \ldots
+\item output.(n-1).tangent.post
+\end{itemize}
+These output files correspond to the posterior distributions obtained for each of the $n$ lines present in \textit{data file}.
+
+\subsection*{Example}
+A complete example is provided in the file \texttt{exampleABC.sh}, which is provided with the source code.  It is a simple example of estimating the scaled mutation rate parameter $\theta$ from the number of segregating sites.  The example requires \textit{R} (\url{http://www.r-project.org}) (with the \texttt{locfit} package installed) and Dick Hudson's \texttt{ms} (\url{http://home.uchicago.edu/~rhudson1}) to work.
+
+\bibliographystyle{plain}
+\bibliography{literature}
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 
