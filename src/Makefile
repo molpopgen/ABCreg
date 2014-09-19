@@ -6,7 +6,7 @@ DEBUG=
 CFLAGS=-O3 -Wall -W $(DEBUG) -I.
 CXXFLAGS=-O3 -Wall -W $(DEBUG) -ansi -pedantic -I.
 DEBUGFLAGS=-g -Wall -W -ansi -pedantic
-LIBS=-lgsl -lgslcblas
+LIBS=-lgsl -lgslcblas -lz
 
 TARGETS=reg.o params.o process_options.o read_prior.o transformations.o abc_algebra.o generate_posterior.o
 TARGETS_DEBUG=	reg_debug.o params_debug.o process_options_debug.o read_prior_debug.o transformations_debug.o abc_algebra_debug.o generate_posterior_debug.o

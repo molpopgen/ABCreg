@@ -12,6 +12,8 @@
 #include <read_prior.hpp>
 #include <transformations.hpp>
 
+#include <zlib.h>
+
 using namespace std;
 
 unsigned run=0;
@@ -72,7 +74,7 @@ int main(int argc, char **argv)
     {
       suffix += ".both";
     }
-  suffix += ".post";
+  suffix += ".post.gz";
 
   //read through the file of observed summary stats,
   //normalizing each along the way and doing the regression,
@@ -116,9 +118,10 @@ int main(int argc, char **argv)
 	  //create output file name
 	  ostringstream ofname;
 	  ofname << p.basename << '.' << run  << suffix;
-	  FILE * ofp = fopen(ofname.str().c_str(),"w");
+	  //FILE * ofp = fopen(ofname.str().c_str(),"w");
 	  unsigned j;
 
+	  ostringstream buffer;
 	  //write posterior distribution out to file, back-transforming the parameters
 	  //as needed
 	  for(unsigned i = 0 ; i < posterior[0].size() ; ++i)
@@ -135,11 +138,16 @@ int main(int argc, char **argv)
 		    cerr << posterior[j][i] << '\n';
 		  assert( ((p.transform_data==true) ? isfinite(data_untransform(posterior[j][i],p,mins[j],maxs[j])) : isfinite(posterior[j][i])) );
 #endif
-		  fprintf(ofp,"%lf\t",( (p.transform_data == true) ? data_untransform(posterior[j][i],p,mins[j],maxs[j]) : posterior[j][i]) );
+		  //fprintf(ofp,"%lf\t",( (p.transform_data == true) ? data_untransform(posterior[j][i],p,mins[j],maxs[j]) : posterior[j][i]) );
+		  buffer << ( (p.transform_data == true) ? data_untransform(posterior[j][i],p,mins[j],maxs[j]) : posterior[j][i] ) << '\t';
 		}
-	      fprintf(ofp,"%lf\n",( (p.transform_data == true) ? data_untransform(posterior[j][i],p,mins[j],maxs[j]) : posterior[j][i]) );
+	      buffer << ( (p.transform_data == true) ? data_untransform(posterior[j][i],p,mins[j],maxs[j]) : posterior[j][i] ) << '\n';
+	      //fprintf(ofp,"%lf\n",( (p.transform_data == true) ? data_untransform(posterior[j][i],p,mins[j],maxs[j]) : posterior[j][i]) );
 	    }
-	  fclose(ofp);
+	  gzFile ofp = gzopen(ofname.str().c_str(),"wb");
+	  gzwrite(ofp,buffer.str().c_str(),buffer.str().size());
+	  gzclose(ofp);
+	  //fclose(ofp);
 	  run++;
 	}
       gsl_matrix_free(cov_matrix);

@@ -59,7 +59,8 @@ j=1
 tv=scan("true_values")
 for( i in 0:999 )
 {
-fn=paste("output.",i,".tangent.post",sep="")
+fn=paste("output.",i,".tangent.post.gz",sep="")
+infile=gzfile(fn,"rb")
 x=scan(fn,quiet=T)
 estimates[j] = getmap(x)
 j=j+1
