@@ -38,7 +38,9 @@ int main(int argc, char **argv)
   vector<vector <double> > prior(p.nparams, vector<double>()),
     summaries(p.nsumm, vector<double>());
   
+  read_prior(p.priorfile.c_str(),p,&mins,&maxs,&prior,&summaries);
   //read in the prior file
+  /*
   FILE * infile = fopen(p.priorfile.c_str(),"r");
   int count = 0;
   if(infile != NULL)
@@ -56,7 +58,7 @@ int main(int argc, char **argv)
       exit(10);
     }
   fclose(infile);
-  
+  */
   //normalize the simulated summary statistics
   vector< pair<double,double> > mean_and_sd = scale_simulated_summaries(p.nsumm,&summaries);
 
@@ -79,8 +81,9 @@ int main(int argc, char **argv)
   //read through the file of observed summary stats,
   //normalizing each along the way and doing the regression,
   //and the output
-  infile = fopen(p.datafile.c_str(),"r");
-  count = 0;
+  //FILE * infile = fopen(p.datafile.c_str(),"r");
+  gzFile infile = gzopen(p.datafile.c_str(),"rb");
+  int count = 0;
 
   //  unsigned run = 0;
   if(infile != NULL)
@@ -90,23 +93,27 @@ int main(int argc, char **argv)
 	= gsl_matrix_alloc(p.nsumm+1,p.nsumm+1);
 
       gsl_vector * b = gsl_vector_alloc(p.nsumm+1);
-      while(count!=EOF)
+      //while(count!=EOF)
+      while(!gzeof(infile))
 	{
 	  vector<double> observed(p.nsumm);
 
 	  //read in 1 set of summaries
 	  for(unsigned stat=0;stat<p.nsumm;++stat)
 	    {
-	      count = fscanf(infile,"%lf",&observed[stat]);
+	      //count = fscanf(infile,"%lf",&observed[stat]);
+	      observed[stat]=nextdouble(infile);
 	      //normalize this stat using the values we
 	      //stored when normalizing the simulated stats
-	      if(count != EOF)
+	      //if(count != EOF)
+	      if(!gzeof(infile))
 		{
 		  observed[stat] -= mean_and_sd[stat].first;
 		  observed[stat] /= mean_and_sd[stat].second;
 		}
 	    }
-	  if(count == EOF) break; //there are no more data to analyze
+	  //if(gzeof(infile)) break;  //there are no more data to analyze
+	  //if(count == EOF) break;
 
 	  vector< vector<double> > posterior = generate_posterior(p,
 								  observed,
@@ -157,4 +164,5 @@ int main(int argc, char **argv)
     {
       cerr << "error: could not open " << p.datafile << '\n';
     }
+  gzclose(infile);
 }

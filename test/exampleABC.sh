@@ -22,7 +22,7 @@
 R --no-save <<EOF
 write(runif(1000,1,50),file="true_values",ncolumns=1)
 EOF
-ms 10 1000 -t tbs < true_values | grep segs | cut -d":" -f 2 > data
+ms 10 1000 -t tbs < true_values | grep segs | cut -d":" -f 2 | gzip > data.gz
 
 #step 2: Simulate from a uniform prior distribution on theta, which goes from 0 to 50.
 #We will simulate 1 million draws from such a prior, and save the results in the file 
@@ -34,19 +34,19 @@ EOF
 
 #step 3: simulate data under the model, using prior_temp to provide values of theta
 
-ms 10 1000000 -t tbs < prior_temp | grep segs | cut -d":" -f 2 > prior_summaries
+ms 10 1000000 -t tbs < prior_temp | grep segs | cut -d":" -f 2 | gzip > prior_summaries
 
 #step 4: generate a prior file of parameters + summaries
 
-paste prior_temp prior_summaries > prior
+paste prior_temp prior_summaries > prior.gz
 
 #step 5: do the ABC step
 
-../src/reg -p prior -d data -P 1 -S 1 -b output -T -t 0.001
+../src/reg -p prior.gz -d data.gz -P 1 -S 1 -b output -T -t 0.001
 
 #step 6: plot the distribution of the estimator
 #This bit uses the locfit package in R to estimate the mode
-#of each posterior distribution (the so-called "maximum a-posteriori" estimate,
+#of each posterior distribution (the so-called "maximum a-posteriori" estimate),
 #or MAP esstimate, of the parameter.  This is the value which maximises the 
 #posterior probability of the parameters, given the data.
 #The distribution of the MAP estimates are plotted, and a vertical line placed
@@ -62,6 +62,7 @@ for( i in 0:999 )
 fn=paste("output.",i,".tangent.post.gz",sep="")
 infile=gzfile(fn,"rb")
 x=scan(fn,quiet=T)
+close(infile)
 estimates[j] = getmap(x)
 j=j+1
 }
