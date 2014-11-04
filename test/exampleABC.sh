@@ -34,11 +34,11 @@ EOF
 
 #step 3: simulate data under the model, using prior_temp to provide values of theta
 
-ms 10 1000000 -t tbs < prior_temp | grep segs | cut -d":" -f 2 | gzip > prior_summaries
+ms 10 1000000 -t tbs < prior_temp | grep segs | cut -d":" -f 2 > prior_summaries
 
 #step 4: generate a prior file of parameters + summaries
 
-paste prior_temp prior_summaries > prior.gz
+paste prior_temp prior_summaries | gzip > prior.gz
 
 #step 5: do the ABC step
 
