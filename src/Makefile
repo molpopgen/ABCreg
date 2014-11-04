@@ -4,7 +4,7 @@ CXX=c++
 #DEBUG=-DNDEBUG
 DEBUG=
 CFLAGS=-O3 -Wall -W $(DEBUG) -I.
-CXXFLAGS=-O3 -Wall -W $(DEBUG) -ansi -pedantic -I.
+CXXFLAGS=-std=c++11 -O3 -Wall -W $(DEBUG) -I.
 DEBUGFLAGS=-g -Wall -W -ansi -pedantic
 LIBS=-lgsl -lgslcblas -lz
 

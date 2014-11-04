@@ -43,8 +43,9 @@ void cleanws(gzFile file)
 double nextdouble(gzFile file)
 {
   cleanws(file);
-  char * pend;
-  return strtod( read2ws(file).c_str(),&pend);
+  return stod( read2ws(file), 0 );
+  //char * pend;
+  //return strtod( read2ws(file).c_str(),&pend);
 }
 
 int read_prior( const char * infilename,
