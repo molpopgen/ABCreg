@@ -6,7 +6,8 @@
 #include <iostream>
 #include <string>
 #include <cctype>
-
+#include <limits>
+#include <iostream>
 #include <transformations.hpp>
 
 using namespace std;
@@ -43,7 +44,9 @@ void cleanws(gzFile file)
 double nextdouble(gzFile file)
 {
   cleanws(file);
-  return stod( read2ws(file), 0 );
+  auto rv = read2ws(file);
+  if( gzeof(file) ) return numeric_limits<double>::quiet_NaN();
+  return stod( rv, 0 );
   //char * pend;
   //return strtod( read2ws(file).c_str(),&pend);
 }
@@ -73,6 +76,7 @@ int read_prior( const char * infilename,
 	{
 	  //count = fscanf(opened_file,"%lf",&temp);
 	  temp = nextdouble(opened_file);
+	  if(gzeof(opened_file))break;
 	  if(! isfinite(temp))
 	    {
 	      std::cerr << "non-isfinite value encountered in prior file on line " << (lines+1) << ": " << temp << '\n';
@@ -99,10 +103,11 @@ int read_prior( const char * infilename,
 	}
       nread++;
 
-      for( unsigned i = 0 ; i < p.nsumm ; ++i )
+      for( unsigned i = 0 ; !gzeof(opened_file) && i < p.nsumm ; ++i )
 	{
 	  //count = fscanf(opened_file,"%lf",&temp);
 	  temp = nextdouble(opened_file);
+	  if(gzeof(opened_file))break;
 	  nread++;
 	  if(! isfinite(temp))
 	    {
