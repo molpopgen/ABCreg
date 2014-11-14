@@ -94,7 +94,8 @@ int main(int argc, char **argv)
 
       gsl_vector * b = gsl_vector_alloc(p.nsumm+1);
       //while(count!=EOF)
-      while(!gzeof(infile))
+      //while(!gzeof(infile))
+      do
 	{
 	  vector<double> observed(p.nsumm);
 
@@ -112,7 +113,8 @@ int main(int argc, char **argv)
 		  observed[stat] /= mean_and_sd[stat].second;
 		}
 	    }
-	  //if(gzeof(infile)) break;  //there are no more data to analyze
+	  cleanws(infile);
+	  if(gzeof(infile)) break;  //there are no more data to analyze
 	  //if(count == EOF) break;
 
 	  vector< vector<double> > posterior = generate_posterior(p,
@@ -157,6 +159,7 @@ int main(int argc, char **argv)
 	  //fclose(ofp);
 	  run++;
 	}
+      while(!gzeof(infile));
       gsl_matrix_free(cov_matrix);
       gsl_vector_free(b);
     }

@@ -13,4 +13,5 @@ int read_prior( const char * infilename,
 		std::vector< std::vector<double> > * summaries);
 
 double nextdouble(gzFile file);
+void cleanws(gzFile file);
 #endif
